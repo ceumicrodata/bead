@@ -1,11 +1,6 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 from .test import TestCase
 from .box import Box
-from .tech.fs import write_file
+from .tech.fs import write_file, rmtree
 from .tech.timestamp import time_from_user
 from .workspace import Workspace
 from . import spec as bead_spec
@@ -45,6 +40,16 @@ class Test_box_with_beads(TestCase):
         self.assertEquals('bead1', best_guess)
         self.assertIsNotNone(best_guess_timestamp)
         self.assertEquals(set(['bead1']), set(names))
+
+    def test_find_names_works_even_with_removed_box_directory(self, box, timestamp):
+        rmtree(box.directory)
+        (
+            exact_match, best_guess, best_guess_timestamp, names
+        ) = box.find_names(kind='test-bead1', content_id='', timestamp=timestamp)
+        self.assertIsNone(exact_match)
+        self.assertIsNone(best_guess)
+        self.assertIsNone(best_guess_timestamp)
+        self.assertSequenceEqual((), names)
 
     def test_find_with_uppercase_name(self, box, timestamp):
         matches = box.get_context(bead_spec.BEAD_NAME_GLOB, 'BEAD3', timestamp)

@@ -1,7 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
-from __future__ import unicode_literals
-from __future__ import print_function
 
 import os
 import stat
@@ -22,10 +20,12 @@ WIN_TOOL = BUILD + '/bead.cmd'
 
 def mkdir(dir):
     if not os.path.isdir(dir):
+        print(f'mkdir {dir}')
         os.makedirs(dir)
 
 
 def pip(*args):
+    print(f'pip {" ".join(args)}')
     return check_call(('pip',) + args)
 
 
@@ -34,10 +34,12 @@ def pip_download_source(*args):
 
 
 def rmtree(dir):
+    print(f'rm -rf {dir}')
     shutil.rmtree(dir, ignore_errors=True)
 
 
 def make_executable(file):
+    print(f'chmod +x {file}')
     st = os.stat(file)
     os.chmod(file, st.st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
 
@@ -65,7 +67,24 @@ def further_output(msg):
 progress = notification
 
 # start with no build directory
-rmtree(BUILD)
+with further_output('Clean up'):
+    rmtree(BUILD)
+
+PKG_DIRS = sorted(os.path.dirname(init_py) for init_py in glob('*/__init__.py'))
+
+PY_SOURCES = []
+for pkg_dir in PKG_DIRS:
+    for root, dirs, files in os.walk(pkg_dir):
+        for file in files:
+            if file.endswith('.py'):
+                PY_SOURCES.append(os.path.normpath(os.path.join(root, file)))
+
+with further_output('Copying over our sources'):
+    PY_DIRS = sorted({os.path.dirname(file) for file in PY_SOURCES})
+    for dir in PY_DIRS:
+        mkdir(os.path.join(SRC, dir))
+    for file in PY_SOURCES:
+        shutil.copy(file, os.path.join(SRC, file))
 
 with further_output('Downloading dependencies'):
     mkdir(PKGS)
@@ -73,22 +92,24 @@ with further_output('Downloading dependencies'):
 
 with further_output('Unpacking packages'):
     mkdir(SRC)
-    for package in glob(PKGS + '/*') + ['.']:
+    for package in glob(PKGS + '/*'):
         pip('install', '--target', SRC, '--no-compile', '--no-deps', package)
 
-# # Get rid of the packaging junk
+# # Technically we do not need these files,
+# # however licensing forces us to copy and keep them :(
 # for dir in glob(SRC + '/*.egg-info'):
 #     rmtree(dir)
 
-with progress('Creating .pyz zip archive from the sources ({})'.format(TOOL_PYZ)):
+with progress(f'Creating .pyz zip archive from the sources ({TOOL_PYZ})'):
     with ZipFile(TOOL_PYZ, mode='w', compression=ZIP_DEFLATED) as zip:
         # add the entry point
         zip.write('__main__.py')
+        # add debug logger
+        zip.write('tracelog.py')
         # add python sources
         for realroot, dirs, files in os.walk(SRC):
             ziproot = os.path.relpath(realroot, SRC)
             for file_name in files:
-                # if file_name.endswith('.py'):
                 zip.write(
                     os.path.join(realroot, file_name),
                     os.path.join(ziproot, file_name))
@@ -101,16 +122,16 @@ def make_tool(tool_file_name, runner):
             f.write(pyz.read())
 
 
-with progress('Creating unix tool ({})'.format(UNIX_TOOL)):
-    UNIX_RUNNER = b'#!/usr/bin/env python\n'
+with progress(f'Creating unix tool ({UNIX_TOOL})'):
+    UNIX_RUNNER = b'#!/usr/bin/env python3\n'
 
     make_tool(UNIX_TOOL, UNIX_RUNNER)
     make_executable(UNIX_TOOL)
 
-with progress('Creating windows tool ({})'.format(WIN_TOOL)):
+with progress(f'Creating windows tool ({WIN_TOOL})'):
     WINDOWS_RUNNER = b'\r\n'.join((
         b'@echo off',
-        b'python.exe "%~f0" %*',
+        b'python3.exe "%~f0" %*',
         b'exit /b %errorlevel%',
         b''))
 

@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 import os
 from bead.test import TestCase
 from testtools.content import text_content
@@ -51,6 +46,8 @@ class Test_basic_command_line(TestCase):
         cli('status')
         self.assertIn('Inputs', robot.stdout)
         self.assertIn('older-self', robot.stdout)
+
+        cli('web')
 
         # this might leave behind the empty directory on windows
         cli('nuke')

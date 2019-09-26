@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 import os.path
 
 from .cmdparse import Command
@@ -12,9 +7,7 @@ from . import arg_help
 from .common import (
     OPTIONAL_WORKSPACE, OPTIONAL_ENV,
     DefaultArgSentinel,
-    CurrentDirWorkspace,
     verify_with_feedback,
-    print3,
     die, warning
 )
 from .common import BEAD_REF_BASE_defaulting_to, BEAD_OFFSET, BEAD_TIME, resolve_bead, TIME_LATEST
@@ -45,9 +38,7 @@ def INPUT_NICK(parser):
 
 # bead_ref
 SAME_KIND_NEWEST_VERSION = DefaultArgSentinel('same bead, newest version')
-USE_INPUT_NICK = DefaultArgSentinel('use {}'.format(arg_metavar.INPUT_NICK))
-# default workspace
-CURRENT_DIRECTORY = CurrentDirWorkspace()
+USE_INPUT_NICK = DefaultArgSentinel(f'use {arg_metavar.INPUT_NICK}')
 
 
 class CmdAdd(Command):
@@ -69,7 +60,7 @@ class CmdAdd(Command):
         env = args.get_env()
 
         if os.path.dirname(input_nick):
-            die('Invalid input name: {}'.format(input_nick))
+            die(f'Invalid input name: {input_nick}')
 
         if bead_ref_base is USE_INPUT_NICK:
             bead_ref_base = input_nick
@@ -77,7 +68,7 @@ class CmdAdd(Command):
         try:
             bead = resolve_bead(env, bead_ref_base, args.bead_time)
         except LookupError:
-            die('Not a known bead name: {}'.format(bead_ref_base))
+            die(f'Not a known bead name: {bead_ref_base}')
 
         _check_load_with_feedback(workspace, args.input_nick, bead)
 
@@ -95,7 +86,7 @@ class CmdDelete(Command):
         input_nick = args.input_nick
         workspace = args.workspace
         workspace.delete_input(input_nick)
-        print('Input {} is deleted.'.format(input_nick))
+        print(f'Input {input_nick} is deleted.')
 
 
 class CmdUpdate(Command):
@@ -125,10 +116,10 @@ class CmdUpdate(Command):
                 except LookupError:
                     if workspace.is_loaded(input.name):
                         print(
-                            'Skipping update of {}: no other candidate found ({})'
-                            .format(input.name, input.timestamp))
+                            f'Skipping update of {input.name}:'
+                            + f' no other candidate found ({input.timestamp})')
                     else:
-                        warning('Can not find bead for {}'.format(input.name))
+                        warning(f'Can not find bead for {input.name}')
                 else:
                     _update_input(workspace, input, bead)
             print('All inputs are up to date.')
@@ -161,8 +152,8 @@ def _update_input(workspace, input, bead):
         assert input.kind == bead.kind
         assert input.timestamp == bead.timestamp
         print(
-            'Skipping update of {}: it is already at requested version ({})'
-            .format(input.name, input.timestamp))
+            f'Skipping update of {input.name}:'
+            + f' it is already at requested version ({input.timestamp})')
     else:
         _check_load_with_feedback(workspace, input.name, bead)
 
@@ -199,27 +190,24 @@ def _load(env, workspace, input):
             bead = env.get_bead(input.kind, input.content_id)
         except LookupError:
             warning(
-                'Could not find archive for {} - not loaded!'
-                .format(input.name))
+                f'Could not find archive for {input.name} - not loaded!')
         else:
             _check_load_with_feedback(workspace, input.name, bead)
     else:
-        print('Skipping {} (already loaded)'.format(input.name))
+        print(f'Skipping {input.name} (already loaded)')
 
 
 def _check_load_with_feedback(workspace, input_nick, bead):
     is_valid = verify_with_feedback(bead)
     if is_valid:
         if workspace.is_loaded(input_nick):
-            print('Removing current data from {}'.format(input_nick))
+            print(f'Removing current data from {input_nick}')
             workspace.unload(input_nick)
-        print3('Loading new data to {} ...'.format(input_nick), end='', flush=True)
+        print(f'Loading new data to {input_nick} ...', end='', flush=True)
         workspace.load(input_nick, bead)
         print(' Done')
     else:
-        warning(
-            'Bead for {} is found but damaged - not loading.'
-            .format(input_nick))
+        warning(f'Bead for {input_nick} is found but damaged - not loading.')
 
 
 class CmdUnload(Command):
@@ -245,8 +233,8 @@ class CmdUnload(Command):
 
 def _unload(workspace, input_nick):
     if workspace.is_loaded(input_nick):
-        print3('Unloading', input_nick, '...', end='', flush=True)
+        print('Unloading', input_nick, '...', end='', flush=True)
         workspace.unload(input_nick)
-        print3(' Done', flush=True)
+        print(' Done', flush=True)
     else:
         print(input_nick, 'was not loaded - skipping')

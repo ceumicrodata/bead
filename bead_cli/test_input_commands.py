@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 from bead.test import TestCase
 from testtools.matchers import FileContains, Not, Contains
 
@@ -181,8 +176,8 @@ class Test_input_commands(TestCase, fixtures.RobotAndBeads):
         after_update_files = sorted(files_with_times())
         self.assertEquals(orig_files, after_update_files)
 
-        self.assertThat(robot.stdout, Contains('Skipping update of {}:'.format(bead_a)))
-        self.assertThat(robot.stdout, Contains('Skipping update of {}:'.format(bead_b)))
+        self.assertThat(robot.stdout, Contains(f'Skipping update of {bead_a}:'))
+        self.assertThat(robot.stdout, Contains(f'Skipping update of {bead_b}:'))
 
     def test_update_with_same_bead_is_noop(self, robot, bead_a):
         robot.cli('new', 'test-workspace')
@@ -201,7 +196,7 @@ class Test_input_commands(TestCase, fixtures.RobotAndBeads):
         after_update_files = sorted(files_with_times())
         self.assertEquals(orig_files, after_update_files)
 
-        self.assertThat(robot.stdout, Contains('Skipping update of {}:'.format(bead_a)))
+        self.assertThat(robot.stdout, Contains(f'Skipping update of {bead_a}:'))
 
     def test_unload_all(self, robot, bead_with_inputs):
         robot.cli('develop', bead_with_inputs)

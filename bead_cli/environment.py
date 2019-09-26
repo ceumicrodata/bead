@@ -2,11 +2,6 @@
 User specific environment
 '''
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 from bead.box import Box
 from bead.tech import persistence
 import os
@@ -52,12 +47,10 @@ class Environment:
         # check unique box
         for box in boxes:
             if box.name == name:
-                raise ValueError(
-                    'Box with name {} already exists'.format(name))
+                raise ValueError(f'Box with name {name} already exists')
             if box.location == directory:
                 raise ValueError(
-                    'Box with location {} already exists'
-                    .format(box.location))
+                    f'Box with location {box.location} already exists')
 
         self.set_boxes(boxes + [Box(name, directory)])
 
@@ -84,4 +77,4 @@ class Environment:
                 return box.get_bead(kind, content_id)
             except LookupError:
                 pass
-        raise LookupError('Bead {} {} not found'.format(kind, content_id))
+        raise LookupError(f'Bead {kind}/{content_id} not found')

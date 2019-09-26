@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 import contextlib
 import os
 import fixtures
@@ -10,19 +5,9 @@ from tracelog import TRACELOG
 
 from bead import tech
 
-from bead.test import TempDir, CaptureStdout, CaptureStderr
+from bead.test import TempDir, CaptureStdout, CaptureStderr, chdir
 from .main import run
 from .environment import Environment
-
-
-@contextlib.contextmanager
-def chdir(directory):
-    cwd = os.getcwd()
-    try:
-        os.chdir(directory)
-        yield
-    finally:
-        os.chdir(cwd)
 
 
 @contextlib.contextmanager

@@ -11,12 +11,6 @@ For single command scripts, be more minimalist and just use argparse directly.
 '''
 
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
-
 import argparse
 import pipes
 
@@ -140,8 +134,7 @@ class Parser:
             if 'default' in kwargs:
                 # extend help with default
                 arg_kwargs['help'] = (
-                    '{} (default: {!r})'
-                    .format(kwargs.get('help', ''), kwargs['default']))
+                    f"{kwargs.get('help', '')} (default: {kwargs['default']!r})")
             self.argparser.add_argument(*args, **arg_kwargs)
 
     def command(self, name, commandish, title):

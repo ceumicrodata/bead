@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 import os
 
 from .cmdparse import Command
@@ -27,13 +22,13 @@ class CmdAdd(Command):
         env = args.get_env()
 
         if not os.path.isdir(directory):
-            print('ERROR: "{}" is not an existing directory!'.format(directory))
+            print(f'ERROR: "{directory}" is not an existing directory!')
             return
         location = os.path.abspath(directory)
         try:
             env.add_box(name, location)
             env.save()
-            print('Will remember box {}'.format(name))
+            print(f'Will remember box {name}')
         except ValueError as e:
             print('ERROR:', *e.args)
             print('Check the parameters: both name and directory must be unique!')
@@ -51,7 +46,7 @@ class CmdList(Command):
         boxes = args.get_env().get_boxes()
 
         def print_box(box):
-            print('{0.name}: {0.location}'.format(box))
+            print(f'{box.name}: {box.location}')
         if boxes:
             # XXX: list command: use tabulate?
             print('Boxes:')
@@ -78,6 +73,6 @@ class CmdForget(Command):
         if env.is_known_box(name):
             env.forget_box(name)
             env.save()
-            print('Box "{}" is forgotten'.format(name))
+            print(f'Box "{name}" is forgotten')
         else:
-            print('WARNING: no box defined with "{}"'.format(name))
+            print(f'WARNING: no box defined with "{name}"')

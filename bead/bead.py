@@ -1,23 +1,42 @@
 from abc import ABCMeta, abstractmethod
+from typing import Sequence
+
 from .tech.timestamp import time_from_timestamp
+from .meta import InputSpec
 
 
-class Bead(object):
+class Bead:
     '''
-    I am providing high-level access to content of a bead.
+    Interface to metadata of a bead.
     '''
 
-    __metaclass__ = ABCMeta
+    # high level view of computation
+    kind: str
+    name: str
+    inputs: Sequence[InputSpec]
 
-    kind = str
-    content_id = str
-    timestamp_str = str
-    box_name = str
-    name = str
+    # frozen beads only details
+    # (workspaces can fake them with recognisable values)
+    content_id: str
+    timestamp_str: str
+    box_name: str
 
+    # FIXME: rename Bead.timestamp* to .freeze_time*
     @property
     def timestamp(self):
         return time_from_timestamp(self.timestamp_str)
+
+    def get_input(self, name):
+        for input in self.inputs:
+            if name == input.name:
+                return input
+
+
+class UnpackableBead(Bead):
+    '''
+    Provide high-level access to content of a bead.
+    '''
+    __metaclass__ = ABCMeta
 
     def unpack_to(self, workspace):
         self.unpack_code_to(workspace.directory)

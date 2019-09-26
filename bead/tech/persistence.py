@@ -2,11 +2,6 @@
 Functions to persist python objects or load them.
 '''
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 import json
 
 # json is used for serializing objects for persistence as it is
@@ -15,6 +10,9 @@ import json
 # - the interface is also becoming the standard one for serialization,
 #   e.g. the competing plistlib's interface was deprecated in 3.4 in
 #   favor of a new json-like one
+
+
+ReadError = json.JSONDecodeError
 
 
 def load(istream):

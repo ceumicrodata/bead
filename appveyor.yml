@@ -6,15 +6,9 @@ environment:
     global:
         SOURCE_DIRS: bead bead_cli
     matrix:
-        - PYTHON: "C:/Python27"
+        - PYTHON: "C:/Python36"
           CHECK_SOURCE_CODE: TRUE
           DUMP_CI_VM_INFO: TRUE
-
-        - PYTHON: "C:/Python27"
-          RUN_TESTS: TRUE
-
-        - PYTHON: "C:/Python35"
-          RUN_TESTS: TRUE
 
         - PYTHON: "C:/Python36"
           RUN_TESTS: TRUE

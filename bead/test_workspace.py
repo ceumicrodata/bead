@@ -1,9 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
-from .test import TestCase
+from .test import TestCase, chdir
 from . import workspace as m
 
 import os
@@ -65,6 +60,31 @@ class Test_create(TestCase):
         self.assertEquals(A_KIND, self.workspace.kind)
 
 
+class Test_for_current_working_directory(TestCase):
+
+    def test_non_workspace(self):
+        root = self.new_temp_dir()
+        with chdir(root):
+            ws = m.Workspace.for_current_working_directory()
+        self.assertEquals(tech.fs.Path(root), ws.directory)
+
+    def test_workspace_root(self):
+        root = self.new_temp_dir()
+        workspace = m.Workspace(root)
+        workspace.create(A_KIND)
+        with chdir(root):
+            ws = m.Workspace.for_current_working_directory()
+        self.assertEquals(tech.fs.Path(root), ws.directory)
+
+    def test_workspace_above_root(self):
+        root = self.new_temp_dir()
+        workspace = m.Workspace(root)
+        workspace.create(A_KIND)
+        with chdir(root / layouts.Workspace.INPUT):
+            ws = m.Workspace.for_current_working_directory()
+        self.assertEquals(tech.fs.Path(root), ws.directory)
+
+
 class Test_pack(TestCase):
 
     def test_creates_valid_archive(self):
@@ -105,13 +125,13 @@ class Test_pack(TestCase):
     def given_a_workspace(self):
         self.__workspace_dir = self.new_temp_dir()
         self.workspace.create(A_KIND)
-        l = layouts.Workspace
+        layout = layouts.Workspace
 
         write_file(
-            self.__workspace_dir / l.TEMP / 'README',
+            self.__workspace_dir / layout.TEMP / 'README',
             'temporary directory')
         write_file(
-            self.__workspace_dir / l.OUTPUT / 'output1',
+            self.__workspace_dir / layout.OUTPUT / 'output1',
             self.__OUTPUT1)
         write_file(self.__workspace_dir / 'source1', self.__SOURCE1)
         ensure_directory(self.__workspace_dir / 'subdir')
@@ -124,15 +144,15 @@ class Test_pack(TestCase):
 
     def then_archive_contains_files_from_bead_directory(self):
         with zipfile.ZipFile(self.__zipfile) as z:
-            l = layouts.Archive
+            layout = layouts.Archive
 
-            self.assertEquals(self.__OUTPUT1, z.read(l.DATA / 'output1'))
-            self.assertEquals(self.__SOURCE1, z.read(l.CODE / 'source1'))
-            self.assertEquals(self.__SOURCE2, z.read(l.CODE / 'subdir/source2'))
+            self.assertEquals(self.__OUTPUT1, z.read(layout.DATA / 'output1'))
+            self.assertEquals(self.__SOURCE1, z.read(layout.CODE / 'source1'))
+            self.assertEquals(self.__SOURCE2, z.read(layout.CODE / 'subdir/source2'))
 
             files = z.namelist()
-            self.assertIn(l.BEAD_META, files)
-            self.assertIn(l.MANIFEST, files)
+            self.assertIn(layout.BEAD_META, files)
+            self.assertIn(layout.MANIFEST, files)
 
     def then_archive_is_valid_bead(self):
         bead = Archive(self.__zipfile)
@@ -222,7 +242,7 @@ class Test_load(TestCase):
             path_of_bead_to_load,
             {
                 'output/output1':
-                'data for {}'.format(input_nick).encode('utf-8')
+                f'data for {input_nick}'.encode('utf-8')
             }
         )
         self.workspace.load(input_nick, Archive(path_of_bead_to_load))

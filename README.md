@@ -39,19 +39,21 @@ New computations get a new, universally unique `kind` (technically an uuid).
 
 ## Status
 
-### bead as a tool *is not production ready, yet!*
+### Used in production for 2 years now, there are 100+ frozen computations
 
-Although most of the important stuff is implemented, the metadata format is still not fixed,
-which might render every existing BEAD incompatible after the change.
+Although most of the important stuff is implemented, there are still some raw edges.
 
-Documentation for the tool is non-existent at this point - except for command line help.
-The `doc` directory currently contains design fragments - you will be mislead by them as they
+Documentation for the tool is mostly the command line help.
+
+The `doc` directory has concept descriptions, maybe some use cases,
+but there are also design fragments - you might be mislead by them as they
 are nor describing the current situations nor are they showing the future.
+FIXME: clean up documentation.
 
 
 ## Install instructions
 
-Ensure you have Python installed.
+Ensure you have Python 3.6+ installed.
 
 Run `make executables` to create the `bead` tool:
 
@@ -86,19 +88,20 @@ Thank you for your interest!
 
 Updated by script ([./ci](https://github.com/e3krisztian/bead/blob/master/ci)), text in this section and afterwards will be overwritten
 
-- [FIXME: Archive.is_valid is too costly for a property](https://github.com/e3krisztian/bead/blob/master/bead/archive.py#L66)
-- [FIXME: die with message when directory already exists](https://github.com/e3krisztian/bead/blob/master/bead_cli/workspace.py#L50)
-- [FIXME: robot: environment file should be built by a function in environment](https://github.com/e3krisztian/bead/blob/master/bead_cli/test_robot.py#L36)
-- [FIXME: test_archive.given_a_bead is fragile and yields an invalid BEAD](https://github.com/e3krisztian/bead/blob/master/bead/test_archive.py#L46)
-- [TODO: add tests for timestamps, parse_iso8601, parse_timedelta](https://github.com/e3krisztian/bead/blob/master/bead/tech/timestamp.py#L234)
-- [TODO: ask the user to report the exception?!](https://github.com/e3krisztian/bead/blob/master/bead_cli/main.py#L108)
-- [TODO: Box: support user maintained directory hierarchy](https://github.com/e3krisztian/bead/blob/master/bead/box.py#L99)
-- [TODO: remove TRACELOG](https://github.com/e3krisztian/bead/blob/master/bead/box.py#L10)
-- [TODO: update: assert there is no other argument](https://github.com/e3krisztian/bead/blob/master/bead_cli/input.py#L120)
-- [TODO: use a template and render it with passing in all data](https://github.com/e3krisztian/bead/blob/master/bead_cli/workspace.py#L231)
-- [XXX: cli parsing: revisit when python 2.x no longer supported](https://github.com/e3krisztian/bead/blob/master/bead_cli/cmdparse.py#L86)
-- [XXX: directory itself might be a pattern - is it OK?](https://github.com/e3krisztian/bead/blob/master/bead/box.py#L143)
-- [XXX: introspect parameter names, default values, annotations?](https://github.com/e3krisztian/bead/blob/master/bead_cli/cmdparse.py#L121)
-- [XXX: list command: use tabulate?](https://github.com/e3krisztian/bead/blob/master/bead_cli/box.py#L56)
-- [XXX: try to load smaller inputs?](https://github.com/e3krisztian/bead/blob/master/bead_cli/workspace.py#L161)
+- [FIXME: Archive.is_valid is too costly for a property](https://github.com/e3krisztian/bead/blob/master/bead/archive.py#L68)
+- [FIXME: die with message when directory already exists](https://github.com/e3krisztian/bead/blob/master/bead_cli/workspace.py#L53)
+- [FIXME: rename Bead.timestamp* to .freeze_time*](https://github.com/e3krisztian/bead/blob/master/bead/bead.py#L24)
+- [FIXME: robot: environment file should be built by a function in environment](https://github.com/e3krisztian/bead/blob/master/bead_cli/test_robot.py#L21)
+- [FIXME: test_archive.given_a_bead is fragile and yields an invalid BEAD](https://github.com/e3krisztian/bead/blob/master/bead/test_archive.py#L41)
+- [TODO: add tests for timestamps, parse_iso8601, parse_timedelta](https://github.com/e3krisztian/bead/blob/master/bead/tech/timestamp.py#L229)
+- [TODO: ask the user to report the exception?!](https://github.com/e3krisztian/bead/blob/master/bead_cli/main.py#L107)
+- [TODO: Box: support user maintained directory hierarchy](https://github.com/e3krisztian/bead/blob/master/bead/box.py#L91)
+- [TODO: log/report problem](https://github.com/e3krisztian/bead/blob/master/bead/box.py#L146)
+- [TODO: update: assert there is no other argument](https://github.com/e3krisztian/bead/blob/master/bead_cli/input.py#L111)
+- [TODO: use a template and render it with passing in all data](https://github.com/e3krisztian/bead/blob/master/bead_cli/workspace.py#L230)
+- [XXX: cli parsing: revisit when python 2.x no longer supported](https://github.com/e3krisztian/bead/blob/master/bead_cli/cmdparse.py#L80)
+- [XXX: directory itself might be a pattern - is it OK?](https://github.com/e3krisztian/bead/blob/master/bead/box.py#L135)
+- [XXX: introspect parameter names, default values, annotations?](https://github.com/e3krisztian/bead/blob/master/bead_cli/cmdparse.py#L115)
+- [XXX: list command: use tabulate?](https://github.com/e3krisztian/bead/blob/master/bead_cli/box.py#L51)
+- [XXX: try to load smaller inputs?](https://github.com/e3krisztian/bead/blob/master/bead_cli/workspace.py#L160)
 - [XXX: (usability) save - support saving directly to a directory outside of workspace](https://github.com/e3krisztian/bead/blob/master/bead_cli/workspace.py#L90)

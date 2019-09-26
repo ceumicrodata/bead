@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 import sys
 
 import appdirs
@@ -21,7 +16,7 @@ class CmdVersion(Command):
     '''
 
     def run(self, args):
-        print('{} version {}'.format(PACKAGE, VERSION))
+        print(f'{PACKAGE} version {VERSION}')
 
 
 def make_argument_parser(defaults):
@@ -47,6 +42,10 @@ def make_argument_parser(defaults):
             'nuke',
             workspace.CmdNuke,
             'Delete workspace.',
+
+            'web',
+            workspace.CmdWeb,
+            'Visualize connections to other beads.',
 
             'version',
             CmdVersion,

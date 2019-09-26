@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 import io
 import os
 import stat
@@ -74,7 +69,7 @@ def make_writable(path):
 
 
 def all_subpaths(dir, followlinks=False):
-    for root, dirs, files in os.walk(dir, followlinks=followlinks):
+    for root, _dirs, files in os.walk(dir, followlinks=followlinks):
         root = Path(root)
         yield root
         for file in files:

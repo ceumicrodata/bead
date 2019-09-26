@@ -2,20 +2,12 @@
 We are responsible to store (and retrieve) beads.
 '''
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
-# TODO: remove TRACELOG
-from tracelog import TRACELOG
-
 from fnmatch import fnmatch
 from datetime import datetime, timedelta
 from glob import iglob
 import os
 
-from .archive import Archive
+from .archive import Archive, InvalidArchive
 from . import spec as bead_spec
 from .tech.timestamp import time_from_timestamp
 from .import tech
@@ -115,7 +107,7 @@ class Box(object):
         query = ((bead_spec.KIND, kind), (bead_spec.CONTENT_ID, content_id))
         for bead in self._beads(query):
             return bead
-        raise LookupError('Bead {} {} not found'.format(kind, content_id))
+        raise LookupError(f'Bead {kind}/{content_id} not found')
 
     def all_beads(self):
         '''
@@ -150,8 +142,8 @@ class Box(object):
         for path in paths:
             try:
                 archive = Archive(path, self.name)
-            except:
-                # bad archive, ignore it
+            except InvalidArchive:
+                # TODO: log/report problem
                 pass
             else:
                 yield archive
@@ -159,13 +151,8 @@ class Box(object):
     def store(self, workspace, timestamp):
         # -> Bead
         zipfilename = (
-            self.directory / (
-                '{bead_name}_{timestamp}.zip'
-                .format(
-                    bead_name=workspace.bead_name,
-                    timestamp=timestamp)))
+            self.directory / f'{workspace.name}_{timestamp}.zip')
         workspace.pack(zipfilename, timestamp=timestamp, comment=ARCHIVE_COMMENT)
-        TRACELOG('store as archive', zipfilename)
         return Archive(zipfilename)
 
     def find_names(self, kind, content_id, timestamp):
@@ -178,7 +165,11 @@ class Box(object):
             names                = sequence of names (kind matched)
         '''
         assert isinstance(timestamp, datetime)
-        paths = (self.directory / fname for fname in os.listdir(self.directory))
+        try:
+            filenames = os.listdir(self.directory)
+        except FileNotFoundError:
+            filenames = []
+        paths = (self.directory / fname for fname in filenames)
         beads = self._archives_from(paths)
         candidates = (bead for bead in beads if bead.kind == kind)
 
@@ -236,6 +227,13 @@ class UnionBox:
     def get_at(self, check_type, check_param, time):
         context = self.get_context(check_type, check_param, time)
         return context.best
+
+    def all_beads(self):
+        '''
+        Iterator for all beads in this Box
+        '''
+        for box in self.boxes:
+            yield from box.all_beads()
 
 
 class BeadContext:

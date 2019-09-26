@@ -9,11 +9,6 @@ Command line usage:
 Beware of multi-process capable runners: they will interweave messages.
 '''
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 import atexit
 from datetime import datetime
 import inspect
@@ -50,7 +45,7 @@ atexit.register(_cleanup)
 def _get_test(stack):
     for _frame, filename, lineno, function, code_context, _index in stack:
         if function.startswith('test'):
-            return '{} {}()'.format(_shorten(filename), function)
+            return f'{_shorten(filename)} {function}()'
 
 
 def _shorten(filepath):
@@ -78,14 +73,14 @@ def TRACELOG(*args, **kwargs):
     message = ' '.join(repr(arg) for arg in args)
     if kwargs:
         message += '   ** ' + ' | '.join(
-            '{}: {!r}'.format(key, value)
+            f'{key}: {value!r}'
             for key, value in sorted(kwargs.items()))
 
     try:
         stack = inspect.stack()
     except OSError:
         # it can happen e.g. if the current directory is deleted
-        _write('{time} (?) {message}'.format(time=now, message=message))
+        _write(f'{now} (?) {message}')
         return
 
     try:
@@ -99,16 +94,15 @@ def TRACELOG(*args, **kwargs):
 
     if test_function != last_test_function:
         if last_test_function:
-            _write('{time} END TEST {test}\n'.format(time=now, test=last_test_function))
+            _write(f'{now} END TEST {last_test_function}\n')
         if test_function:
-            _write('\n{time} BEGIN TEST {test}'.format(time=now, test=test_function))
+            _write(f'\n{now} BEGIN TEST {test_function}')
         last_test_function = test_function
 
-    location = '{filename}:{lineno:<4d} @{function:5s}'.format(
-        filename=_shorten(filename), lineno=lineno, function=function)
+    location = f'{_shorten(filename)}:{lineno:<4d} @{function:5s}'
 
     if last_test_function:
         # we have time in the test header-footer
-        _write('  {location} {message}'.format(location=location, message=message))
+        _write(f'  {location} {message}')
     else:
-        _write('{time} {location} {message}'.format(time=now, location=location, message=message))
+        _write(f'{now} {location} {message}')

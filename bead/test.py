@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
+import contextlib
 
 import testtools
 import fixtures
@@ -13,6 +10,16 @@ import tempfile
 
 import arglinker
 from tracelog import TRACELOG
+
+
+@contextlib.contextmanager
+def chdir(directory):
+    cwd = os.getcwd()
+    try:
+        os.chdir(directory)
+        yield
+    finally:
+        os.chdir(cwd)
 
 
 skip, skipIf  # reexport

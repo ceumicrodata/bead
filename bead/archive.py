@@ -1,8 +1,3 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import unicode_literals
-from __future__ import print_function
-
 from copy import deepcopy
 import functools
 import io
@@ -11,7 +6,7 @@ import re
 import shutil
 import zipfile
 
-from .bead import Bead
+from .bead import UnpackableBead
 from . import tech
 from . import layouts
 from . import meta
@@ -40,7 +35,11 @@ assert 'bead-2015v3' == bead_name_from_file_path('bead-2015v3_20150923T010203012
 assert 'bead-2015v3' == bead_name_from_file_path('bead-2015v3_20150923T010203012345-0200.zip')
 
 
-class Archive(Bead):
+class InvalidArchive(Exception):
+    """Not a valid bead archive"""
+
+
+class Archive(UnpackableBead):
 
     def __init__(self, filename, box_name=''):
         self.archive_filename = filename
@@ -48,6 +47,7 @@ class Archive(Bead):
         self.name = bead_name_from_file_path(filename)
         self.zipfile = None
         self._meta = self._load_meta()
+        self._content_id = None
 
     def __zipfile_user(method):
         # method is called with the zipfile opened
@@ -58,6 +58,8 @@ class Archive(Bead):
             try:
                 with zipfile.ZipFile(self.archive_filename) as self.zipfile:
                     return method(self, *args, **kwargs)
+            except (zipfile.BadZipFile, OSError, IOError):
+                raise InvalidArchive(self.archive_filename)
             finally:
                 self.zipfile = None
         return f
@@ -142,8 +144,13 @@ class Archive(Bead):
             return persistence.load(io.TextIOWrapper(f, encoding='utf-8'))
 
     @property
-    @__zipfile_user
     def content_id(self):
+        if self._content_id is None:
+            self._content_id = self.calculate_content_id()
+        return self._content_id
+
+    @__zipfile_user
+    def calculate_content_id(self):
         # there is currently only one meta version
         # and it must match the one defined in the workspace module
         assert self._meta[meta.META_VERSION] == 'aaa947a6-1f7a-11e6-ba3a-0021cc73492e'
@@ -165,11 +172,21 @@ class Archive(Bead):
         # harm to this Archive instance
         return deepcopy(self._meta)
 
+    @property
+    def inputs(self):
+        return tuple(meta.parse_inputs(self.meta))
+
     # -
     @__zipfile_user
     def _load_meta(self):
-        with self.zipfile.open(layouts.Archive.BEAD_META) as f:
-            return persistence.load(io.TextIOWrapper(f, encoding='utf-8'))
+        try:
+            with self.zipfile.open(layouts.Archive.BEAD_META) as f:
+                try:
+                    return persistence.load(io.TextIOWrapper(f, encoding='utf-8'))
+                except persistence.ReadError:
+                    raise InvalidArchive(self.archive_filename)
+        except:
+            raise InvalidArchive(self.archive_filename)
 
     @__zipfile_user
     def extract_file(self, zip_path, fs_path):
