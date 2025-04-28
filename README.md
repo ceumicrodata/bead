@@ -1,6 +1,3 @@
-Health:
-Travis [![Build Status](https://travis-ci.org/e3krisztian/bead.svg?branch=master)](https://travis-ci.org/e3krisztian/bead)
-AppVeyor [![Build Status](https://ci.appveyor.com/api/projects/status/github/e3krisztian/bead?branch=master&svg=true)](https://ci.appveyor.com/project/e3krisztian/bead)
 
     B-E-+
      \ \ \
@@ -8,10 +5,17 @@ AppVeyor [![Build Status](https://ci.appveyor.com/api/projects/status/github/e3k
 
 # BEAD
 
+Reproducing research results requires knowing exactly which version of the data was used and
+understanding the steps taken to clean and analyse it. This can be challenging in distributed
+environments with many contributors.
 
-BEAD is a format for freezing and storing computations while `bead` is a tool that helps
-capturing and managing computations in BEAD formats.
+[`bead`](https://bead.zip) is a simple command-line tool and archive format that
+systematically documents data work]ows. Each saved *bead* captures a single processing step: the
+input data (via unique references), the code used, and the resulting outputs—whether cleaned datasets,
+visualisations, or reports. By recording these steps and linking them via input references, bead facilitates
+easy review, maintenance, and re-execution of computations, while also fostering collaboration.
 
+Download from https://github.com/ceumicrodata/bead/releases
 
 ## Concept
 
@@ -39,7 +43,7 @@ New computations get a new, universally unique `kind` (technically an uuid).
 
 ## Status
 
-### Used in production for 2 years now, there are 100+ frozen computations
+### Used in production for 8 years now, there are 500+ frozen computations
 
 Although most of the important stuff is implemented, there are still some raw edges.
 
